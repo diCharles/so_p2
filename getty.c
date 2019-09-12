@@ -8,19 +8,25 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/types.h>
+#include <string.h>
 
 #define HIJ0 0u
 #define SHUTDOWN 2U
 #define EXIT     3U
 #define CMDSHIFT 8U // command shift
 
+#define MAX_LINE_LEN 100// Maximum file line length
+
 
 int  log_in(); 
-
+int user_auth(const char * user_data);
 int main()
 {
 	/* wait succesful log in*/
-	while(1 != log_in());
+	do{ 
+		 
+	   }while( 0 != log_in());
+	 printf("log in succesfullly  \n");
 	
 	
 	/* crear hijo*/
@@ -58,12 +64,61 @@ int main()
 	return 0;
 }	
 
-int  log_in()
+int  log_in(void)
 {
-	char dummy [80];
-	printf("Ingrese usuario y contrasena\n");
+	char user_name [80]= {'\0'};
+	printf("Ingrese usuario\n");
 	// pedir contraseña
-	scanf("%[^\n]%*c", dummy);
-	// seguir hasta contraseña correcta
-	return (1);
+	scanf("%[^\n]%*c", user_name);
+	
+	char user_psswd [80]= {'\0'};
+	printf("Ingrese contraseña\n");
+	scanf("%[^\n]%*c", user_psswd);
+	strcat(user_name, (const char * )":");
+	strcat(user_name, (const char * )user_psswd);
+	
+	return  user_auth((const char *)user_name);
 }
+int user_auth(const char * user_data)
+{
+	  FILE *fp;
+   char str[60];
+
+   /* opening file for reading */
+   fp = fopen("psswd.txt" , "r");
+   if(fp == NULL) {
+      perror("Error opening file of psswd");
+      return(-1);
+   }
+    int  len_user_d = strlen(user_data);
+
+	int cntr_conciden = 0;
+   while ( fgets (str, 60, fp)!=NULL ) {
+     
+	
+	  cntr_conciden= 0;
+	   int cntr = 0;
+	
+	   // compare str of file against user_data str
+	   while(cntr< MAX_LINE_LEN )
+	   {
+		   
+		   if( str[cntr]  == user_data[cntr] )
+			   cntr_conciden++;
+		   else
+			   break;
+		 
+		   cntr++;
+	   }   
+	  
+	   if(cntr_conciden== len_user_d)
+	   {
+		   return 0;
+	   }
+	
+   }
+	
+   fclose(fp);
+   printf("no se reconoció %s\n", user_data);
+   return(-1);
+  }
